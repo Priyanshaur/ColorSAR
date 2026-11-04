@@ -1,4 +1,15 @@
-# ColorSAR Requirements (PyTorch with CUDA 12.6 is installed via extra-index-url)
+# ColorSAR dependencies
+#
+# Install PyTorch FIRST so you get the build that matches your machine:
+#   NVIDIA GPU (CUDA 12.6 - the laptop this project trains on):
+#       pip install torch torchvision --index-url https://download.pytorch.org/whl/cu126
+#   CPU only:
+#       pip install torch torchvision --index-url https://download.pytorch.org/whl/cpu
+# If you skip that step, `pip install -r requirements.txt` pulls the default
+# PyPI build (works too, but it is a much larger download).
+torch
+torchvision
+
 numpy
 scikit-image
 opencv-python

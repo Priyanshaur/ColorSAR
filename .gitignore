@@ -2,4 +2,12 @@ v_2/
 __pycache__/
 *.pyc
 *.pth
+# ...but keep the trained checkpoints so they actually travel with the repo
+# (model_1.pth went missing on the first pull because of the *.pth rule above)
+!model1_run/*.pth
+!model2_run/*.pth
+model1_run/metrics*.json
+model2_run/metrics*.json
 visual_test_output.png
+_smoke/
+colorized_result.png

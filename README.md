@@ -74,7 +74,11 @@ Model 1 (clean-input baseline colorization) was trained across the **full datase
 | **20** | **`0.0049`** | `0.0043` | Final converged checkpoint saved |
 
 ### Artifacts in `model1_run/`
-- **[`model_1.pth`](model1_run/model_1.pth)**: Trained PyTorch decoder weights (31.3 MB).
+- **`model_1.pth`**: Trained PyTorch decoder weights (31.3 MB).
+  ⚠️ This file is **not in the repo yet** — the old `*.pth` ignore rule stripped it
+  out of the training commit. `.gitignore` now has an exception, so it just needs
+  `git add -f model1_run/model_1.pth && git push` from the machine that trained it.
+  `colorize_image.py` and `evaluate.py` both need it.
 - **[`loss_curve.png`](model1_run/loss_curve.png)**: 20-epoch training vs. validation loss curve.
 - **[`sample_predictions.png`](model1_run/sample_predictions.png)**: 3-panel visual evaluation (Grayscale Input vs. Ground Truth RGB vs. ColorSAR Prediction).
 - **[`history.json`](model1_run/history.json)**: Raw JSON loss logs for each epoch.
@@ -124,15 +128,22 @@ This will run inference on your RTX 4050 GPU and generate a 3-way side-by-side c
 
 ```
 ColorSAR/
-├── .venv/                         # Virtual environment (PyTorch CUDA 12.6, dependencies)
-├── model1_run/                    # Trained Model 1 Checkpoint & Results
-│   ├── model_1.pth                # 31.3 MB trained decoder weights
-│   ├── loss_curve.png             # Training & validation convergence plot
+├── model1_run/                    # Model 1 (trained): checkpoint + results
+│   ├── model_1.pth                # 31.3 MB decoder weights (see note in section 2)
+│   ├── loss_curve.png             # 20-epoch convergence plot
 │   ├── sample_predictions.png     # Validation sample comparisons
 │   ├── history.json               # Epoch-by-epoch loss records
 │   └── colorized_sample_test.png  # Local verification test on sample_input.jpeg
+├── model2_run/                    # Model 2 (created when stage A/B are run)
+│   ├── dncnn.pth                  # Trained denoiser weights
+│   └── model_2.pth                # Trained decoder weights
 ├── ColorSAR_Kaggle_Training.ipynb # Multi-GPU training notebook for Kaggle (2x T4)
 ├── colorize_image.py              # Standalone inference & colorization CLI tool
+├── evaluate.py                    # PSNR / SSIM evaluation for Model 1 or Model 2
+├── Train_model2.py                # Stage B: colorization trained on SAR input
+├── train_dncnn.py                 # Stage A: DnCNN denoiser training
+├── dncnn.py                       # DnCNN architecture (depth 17, residual learning)
+├── color_utils.py                 # s1/s2 pairing + Lab conversion helpers
 ├── model_architecture.py          # EnsembleEncoder, Decoder & ColorizationModel
 ├── data_pipeline.py               # Lab space conversion & patch extraction logic
 ├── Train_model1.py                # Local training script (supports subset via --n_images)
@@ -144,6 +155,60 @@ ColorSAR/
 
 ---
 
-## 6. Next Steps
+## 6. Model 2 Pipeline — DnCNN denoising + SAR-input colorization
 
-- **Model 2 (SAR Speckle Denoising + Colorization)**: Integrate a **DnCNN** (Denoising Convolutional Neural Network) preprocessing module before the Ensemble Encoder to handle real Sentinel-1 radar speckle noise prior to chromatic prediction.
+Model 2 is the *real* SAR colorization path: the luminance fed to the network comes
+from the **SAR (s1)** image after DnCNN denoising, while the a/b targets stay the
+optical (s2) channels. This reproduces `gray_model.ipynb` from the original repo
+(DnCNN depth 17 / 64 channels, residual learning; encoder frozen; MSE; Adam 1e-3).
+
+**Stage A — train the denoiser** (SAR grayscale → optical grayscale):
+
+```powershell
+python train_dncnn.py --epochs 15
+```
+Writes `model2_run/dncnn.pth`, its loss curve/history, and prints the denoiser's own
+PSNR/SSIM (original reported **16.24 dB / 0.2641**).
+
+**Stage B — train Model 2** on denoised SAR luminance:
+
+```powershell
+python Train_model2.py
+```
+Writes `model2_run/model_2.pth` (best decoder), `history.json`, `loss_curve.png` and
+`sample_predictions.png`.
+
+Useful flags for both: `--n_images`, `--epochs`, `--batch_size`, `--out`, `--root`.
+`Train_model2.py --no_denoise` trains on raw SAR luminance (ablation for the report).
+The encoder is frozen, so `--batch_size 32` fits comfortably in the RTX 4050's 6 GB.
+
+---
+
+## 7. Evaluation — PSNR / SSIM
+
+`evaluate.py` reconstructs RGB from (input L + predicted ab) and scores it against the
+paired optical image:
+
+```powershell
+python evaluate.py --model 1 --checkpoint model1_run/model_1.pth --per_terrain
+python evaluate.py --model 2 --checkpoint model2_run/model_2.pth --per_terrain --out model2_run/metrics.json
+```
+
+It prints overall PSNR/SSIM, an **oracle** row (true ab with the same L — the ceiling
+imposed by that luminance), and an optional per-terrain breakdown.
+
+| | our target (upstream ColorSAR) |
+|---|---|
+| Model 1 | PSNR **29.9230** / SSIM **0.9400** |
+| Model 2 | PSNR **14.4466** / SSIM **0.2314** |
+
+---
+
+## 8. Next Steps
+
+- **Upload the Model 1 weights**: `git add -f model1_run/model_1.pth && git push`
+  (the checkpoint is still missing from the repo, so nobody else can run inference yet).
+- **Score Model 1**: `python evaluate.py --model 1` and compare against 29.92 / 0.940.
+- **Train Model 2**: `python train_dncnn.py` then `python Train_model2.py`, then evaluate
+  against 14.4466 / 0.2314.
+- **Report**: results tables + `sample_predictions.png` / `colorized_sample_test.png` figures.
