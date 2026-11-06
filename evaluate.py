@@ -151,7 +151,7 @@ if __name__ == "__main__":
 
         pred_rgb = lab_to_rgb(L, pred_ab)                   # (N,H,W,3) numpy
         oracle_rgb = lab_to_rgb(L, ab_gt)
-        gt = rgb_gt.permute(0, 2, 3, 1).numpy()             # (N,H,W,3) numpy
+        gt = rgb_gt.permute(0, 2, 3, 1).cpu().numpy()       # (N,H,W,3) numpy
         pred = pred_rgb
         orc = oracle_rgb
 
