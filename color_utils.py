@@ -9,6 +9,7 @@ grayscale) and s2/ (optical, 8-bit RGB) with identical filenames except the
 `_s1_` / `_s2_` token -> 16,000 exact pairs.
 """
 import os
+import warnings
 
 import numpy as np
 import torch
@@ -97,5 +98,9 @@ def lab_to_rgb(L, ab):
     ab_u = (ab.detach().cpu().numpy() + 1) * 0.5 * 255 - 128
     lab = np.concatenate([L_u, ab_u], axis=1)              # (N,3,H,W)
     lab = np.transpose(lab, (0, 2, 3, 1))                  # (N,H,W,3)
-    rgb = np.stack([lab2rgb(img) for img in lab])          # warns if slightly out of range
+    with warnings.catch_warnings():
+        # lab2rgb complains about the few pixels where the 255 (instead of 256)
+        # ab scaling pushes Lab slightly out of gamut; we clip right after anyway.
+        warnings.simplefilter("ignore")
+        rgb = np.stack([lab2rgb(img) for img in lab])
     return np.clip(rgb, 0.0, 1.0)
