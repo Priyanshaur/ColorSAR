@@ -13,7 +13,10 @@ import warnings
 
 import numpy as np
 import torch
+import torch.nn as nn
 from skimage.color import rgb2lab, lab2rgb
+
+from model_architecture import Decoder
 
 
 def find_pairs(root_dir="v_2"):
@@ -38,6 +41,26 @@ def find_pairs(root_dir="v_2"):
             if key in optical:
                 pairs.append((os.path.join(s1_dir, f), optical[key], terrain))
     return pairs
+
+
+def load_decoder(path, device):
+    """Load decoder weights saved by Train_model1.py / Train_model2.py / Kaggle notebooks.
+
+    Tolerant loader: accepts a plain decoder state_dict, a whole ColorizationModel
+    (keys prefixed `decoder.`) and DataParallel checkpoints (keys prefixed `module.`).
+    """
+    assert os.path.exists(path), f"Checkpoint not found: {path}"
+    obj = torch.load(path, map_location=device, weights_only=False)
+    state = obj.state_dict() if isinstance(obj, nn.Module) else obj
+
+    cleaned = {}
+    for k, v in state.items():
+        k2 = k[len("module."):] if k.startswith("module.") else k
+        k2 = k2[len("decoder."):] if k2.startswith("decoder.") else k2
+        cleaned[k2] = v
+    decoder = Decoder()
+    decoder.load_state_dict(cleaned)
+    return decoder.to(device).eval()
 
 
 def rgb_to_lab(img):

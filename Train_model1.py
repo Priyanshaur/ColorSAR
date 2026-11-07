@@ -16,6 +16,7 @@ matplotlib.use("Agg")
 import matplotlib.pyplot as plt
 
 from visual_test import EnsembleEncoder, Decoder  # same architecture as the original
+from model_architecture import encoder_fingerprint
 
 
 def find_optical_images(root_dir):
@@ -130,6 +131,8 @@ if __name__ == "__main__":
     encoder.eval()
     for p in encoder.parameters():
         p.requires_grad = False
+    print(f"Encoder frozen-layer fingerprint: {encoder_fingerprint(encoder)} "
+          "(evaluation must print the same value)")
     decoder = Decoder().to(device)
 
     criterion = nn.MSELoss()

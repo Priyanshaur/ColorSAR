@@ -138,6 +138,7 @@ ColorSAR/
 │   ├── dncnn.pth                  # Trained denoiser weights
 │   └── model_2.pth                # Trained decoder weights
 ├── ColorSAR_Kaggle_Training.ipynb # Multi-GPU training notebook for Kaggle (2x T4)
+├── colorize.py                    # Unified inference: SAR -> DnCNN -> Model 2, photo -> Model 1
 ├── colorize_image.py              # Standalone inference & colorization CLI tool
 ├── evaluate.py                    # PSNR / SSIM evaluation for Model 1 or Model 2
 ├── Train_model2.py                # Stage B: colorization trained on SAR input
@@ -204,11 +205,54 @@ imposed by that luminance), and an optional per-terrain breakdown.
 
 ---
 
-## 8. Next Steps
+## 8. Demo — colorize any image
 
-- **Upload the Model 1 weights**: `git add -f model1_run/model_1.pth && git push`
-  (the checkpoint is still missing from the repo, so nobody else can run inference yet).
-- **Score Model 1**: `python evaluate.py --model 1` and compare against 29.92 / 0.940.
-- **Train Model 2**: `python train_dncnn.py` then `python Train_model2.py`, then evaluate
-  against 14.4466 / 0.2314.
+`colorize.py` is the end-to-end entry point. It auto-detects the input type and picks
+the matching model:
+
+| input | path taken | checkpoint |
+|---|---|---|
+| 1-band SAR image (`v_2/*/s1/*.png`) | s1 → **DnCNN** → L → Model 2 | `model2_run/model_2.pth` |
+| RGB / grayscale photo | L → Model 1 | `model1_run/model_1.pth` |
+
+```powershell
+python colorize.py --image v_2/agri/s1/ROIs1868_summer_s1_59_p10.png
+python colorize.py --image sample_input.jpeg --mode gray
+```
+
+It writes `<out>` (side-by-side figure: input / colorized / ground truth when the file
+belongs to `v_2/`) and `<out stem>_raw.png` (the colorized image at full resolution).
+
+### Checkpoint portability (important)
+
+The encoder's `conv1x1_*` and `fusion_blocks` layers have **no pretrained weights** —
+they are random at init and then frozen. Checkpoints store only the decoder, so those
+layers must be reconstructed identically on every machine, otherwise the decoder is fed
+features it has never seen and the metrics collapse (measured: **0.045 val MSE instead
+of the 0.0043 it was trained to**).
+
+`model_architecture.py` now seeds them (`ENCODER_FROZEN_SEED`) and pins
+`ResNet50_Weights.IMAGENET1K_V2` (the `DEFAULT` enum silently flipped V1→V2 across
+torchvision releases). Every script prints
+
+```
+Encoder frozen-layer fingerprint: 788e0728e71f
+```
+
+**Training and evaluation must print the same fingerprint** — if they don't, don't
+trust the numbers you are about to compute.
+
+---
+
+## 9. Next Steps
+
+- **Retrain both models with the seeded encoder** — the checkpoints trained before the
+  fix (`model_1.pth`, `model_2.pth`) were built against an unreproducible encoder and
+  score far below their own recorded val loss, so their metrics are not usable.
+  Model 1: re-run the patched Kaggle notebook (25–30 min on 2×T4).
+  Model 2: `python train_dncnn.py && python Train_model2.py` on the laptop.
+- **Score them**: `python evaluate.py --model 1 ...` / `--model 2 ...` and compare
+  against 29.9230 / 0.9400 and 14.4466 / 0.2314. Confirm both runs print the same
+  fingerprint.
+- **Demo**: `python colorize.py --image <any s1 png>` for the report figure.
 - **Report**: results tables + `sample_predictions.png` / `colorized_sample_test.png` figures.

@@ -20,19 +20,18 @@ Usage:
 """
 import argparse
 import json
-import os
 
 import cv2
 import numpy as np
 import torch
-import torch.nn as nn
 from PIL import Image
 from skimage.metrics import peak_signal_noise_ratio, structural_similarity
 from torch.utils.data import DataLoader, Dataset
 
-from color_utils import find_pairs, gray_to_L, lab_to_rgb, rgb_to_L, rgb_to_lab
+from color_utils import (find_pairs, gray_to_L, lab_to_rgb, load_decoder,
+                         rgb_to_L, rgb_to_lab)
 from dncnn import load_dncnn
-from model_architecture import Decoder, EnsembleEncoder
+from model_architecture import EnsembleEncoder, encoder_fingerprint
 
 
 class EvalDataset(Dataset):
@@ -58,22 +57,6 @@ class EvalDataset(Dataset):
         gray_t = torch.from_numpy(gray).unsqueeze(0)
         rgb_t = torch.from_numpy(rgb.astype(np.float32)).permute(2, 0, 1) / 255.0
         return gray_t, rgb_t, torch.from_numpy(ab), terrain
-
-
-def load_decoder(path, device):
-    """Load decoder weights saved by Train_model1.py / Train_model2.py / Kaggle notebooks."""
-    assert os.path.exists(path), f"Checkpoint not found: {path}"
-    obj = torch.load(path, map_location=device, weights_only=False)
-    state = obj.state_dict() if isinstance(obj, nn.Module) else obj
-
-    cleaned = {}
-    for k, v in state.items():
-        k2 = k[len("module."):] if k.startswith("module.") else k
-        k2 = k2[len("decoder."):] if k2.startswith("decoder.") else k2
-        cleaned[k2] = v
-    decoder = Decoder()
-    decoder.load_state_dict(cleaned)
-    return decoder.to(device).eval()
 
 
 @torch.no_grad()
@@ -131,6 +114,8 @@ if __name__ == "__main__":
     encoder = EnsembleEncoder(pretrained=True).to(device).eval()
     for p in encoder.parameters():
         p.requires_grad = False
+    print(f"Encoder frozen-layer fingerprint: {encoder_fingerprint(encoder)} "
+          "(must match the value printed when the checkpoint was trained)")
     decoder = load_decoder(args.checkpoint, device)
 
     stats = {}          # terrain -> [psnr_sum, ssim_sum, oracle_psnr_sum, n]

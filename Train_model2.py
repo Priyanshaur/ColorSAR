@@ -40,7 +40,7 @@ from torch.utils.data import DataLoader, Dataset, random_split
 
 from color_utils import find_pairs, gray_to_L, lab_to_rgb, rgb_to_lab
 from dncnn import load_dncnn
-from model_architecture import Decoder, EnsembleEncoder
+from model_architecture import Decoder, EnsembleEncoder, encoder_fingerprint
 
 matplotlib.use("Agg")
 
@@ -170,6 +170,8 @@ if __name__ == "__main__":
     encoder.eval()
     for p in encoder.parameters():
         p.requires_grad = False
+    print(f"Encoder frozen-layer fingerprint: {encoder_fingerprint(encoder)} "
+          "(evaluation must print the same value)")
     decoder = Decoder().to(device)
     print(f"Trainable decoder parameters: {sum(p.numel() for p in decoder.parameters()):,}")
 

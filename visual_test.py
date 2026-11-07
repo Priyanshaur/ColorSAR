@@ -47,13 +47,20 @@ def load_and_preprocess(image_path, size=224):
 class EnsembleEncoder(nn.Module):
     def __init__(self, pretrained=False):
         super().__init__()
-        weights_r = ResNet50_Weights.DEFAULT if pretrained else None
-        weights_d = DenseNet121_Weights.DEFAULT if pretrained else None
+        # Pinned (not DEFAULT) + seeded frozen layers: see model_architecture.py
+        weights_r = ResNet50_Weights.IMAGENET1K_V2 if pretrained else None
+        weights_d = DenseNet121_Weights.IMAGENET1K_V1 if pretrained else None
+
         self.resnet50 = models.resnet50(weights=weights_r)
         self.densenet121 = models.densenet121(weights=weights_d)
+
         self.resnet50 = nn.Sequential(*list(self.resnet50.children())[:-2])
         self.densenet121.classifier = nn.Identity()
 
+        # Frozen-but-random layers must be identical everywhere, or decoder-only
+        # checkpoints cannot be loaded on another machine. See model_architecture.
+        _rng_state = torch.get_rng_state()
+        torch.manual_seed(42)
         self.conv1x1_resnet50 = nn.ModuleList([
             nn.Conv2d(256, 128, kernel_size=1), nn.Conv2d(512, 256, kernel_size=1),
             nn.Conv2d(1024, 512, kernel_size=1), nn.Conv2d(2048, 1024, kernel_size=1)
@@ -66,6 +73,7 @@ class EnsembleEncoder(nn.Module):
             self.fusion_block(128, 128), self.fusion_block(256, 256),
             self.fusion_block(512, 512), self.fusion_block(1024, 1024)
         ])
+        torch.set_rng_state(_rng_state)
 
     def fusion_block(self, r, d):
         return nn.Sequential(nn.Conv2d(r + d, r, kernel_size=1), nn.BatchNorm2d(r), nn.ReLU(inplace=True))
