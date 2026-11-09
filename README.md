@@ -133,10 +133,13 @@ ColorSAR/
 │   ├── loss_curve.png             # 20-epoch convergence plot
 │   ├── sample_predictions.png     # Validation sample comparisons
 │   ├── history.json               # Epoch-by-epoch loss records
+│   ├── metrics.json               # Final PSNR/SSIM + per-terrain breakdown
 │   └── colorized_sample_test.png  # Local verification test on sample_input.jpeg
-├── model2_run/                    # Model 2 (created when stage A/B are run)
+├── model2_run/                    # Model 2 (trained): DnCNN + colorizer + results
 │   ├── dncnn.pth                  # Trained denoiser weights
-│   └── model_2.pth                # Trained decoder weights
+│   ├── model_2.pth                # Trained decoder weights
+│   ├── history.json / metrics.json # Loss records + final PSNR/SSIM
+│   └── sample_predictions.png     # Validation sample comparisons
 ├── ColorSAR_Kaggle_Training.ipynb # Multi-GPU training notebook for Kaggle (2x T4)
 ├── colorize.py                    # Unified inference: SAR -> DnCNN -> Model 2, photo -> Model 1
 ├── colorize_image.py              # Standalone inference & colorization CLI tool
@@ -198,10 +201,21 @@ python evaluate.py --model 2 --checkpoint model2_run/model_2.pth --per_terrain -
 It prints overall PSNR/SSIM, an **oracle** row (true ab with the same L — the ceiling
 imposed by that luminance), and an optional per-terrain breakdown.
 
-| | our target (upstream ColorSAR) |
-|---|---|
-| Model 1 | PSNR **29.9230** / SSIM **0.9400** |
-| Model 2 | PSNR **14.4466** / SSIM **0.2314** |
+### Results (retrained with the portable encoder, fingerprint `788e0728e71f`)
+
+Full-dataset evaluation, 16,000 s1↔s2 pairs (`n_images 16000`):
+
+| Model | our PSNR | our SSIM | upstream target | oracle ceiling |
+|---|---|---|---|---|
+| **Model 1** (optical L) | **28.4202** | **0.9277** | 29.9230 / 0.9400 | 128.37 |
+| **Model 2** (SAR L, DnCNN) | **14.3632** | **0.1952** | 14.4466 / 0.2314 | 14.5596 |
+
+Model 2 sits **0.08 dB below upstream and 0.20 dB below the theoretical ceiling** set by
+the DnCNN-smoothed luminance it is given — i.e. it extracts essentially all the color
+information that luminance contains. Model 1 is 1.5 dB below upstream, with terrain
+spread 31.51 dB (barrenland) → 26.33 dB (grassland).
+
+Per-terrain (both models): see `model1_run/metrics.json` and `model2_run/metrics.json`.
 
 ---
 
@@ -244,15 +258,21 @@ trust the numbers you are about to compute.
 
 ---
 
-## 9. Next Steps
+## 9. Status & Next Steps
 
-- **Retrain both models with the seeded encoder** — the checkpoints trained before the
-  fix (`model_1.pth`, `model_2.pth`) were built against an unreproducible encoder and
-  score far below their own recorded val loss, so their metrics are not usable.
-  Model 1: re-run the patched Kaggle notebook (25–30 min on 2×T4).
-  Model 2: `python train_dncnn.py && python Train_model2.py` on the laptop.
-- **Score them**: `python evaluate.py --model 1 ...` / `--model 2 ...` and compare
-  against 29.9230 / 0.9400 and 14.4466 / 0.2314. Confirm both runs print the same
-  fingerprint.
-- **Demo**: `python colorize.py --image <any s1 png>` for the report figure.
-- **Report**: results tables + `sample_predictions.png` / `colorized_sample_test.png` figures.
+Done:
+
+- ✅ **Both models retrained** with the seeded/pinned encoder (Model 1 on Kaggle 2×T4,
+  Model 2 on the laptop; commit `9617c26` + `a93af75`).
+- ✅ **Both scored on the full 16,000-pair set** — see the results table in §7.
+- ✅ **Portability verified**: a fresh process on a different machine reproduces the
+  checkpoints' recorded validation losses (Model 1 ≈ 0.0044, Model 2 ≈ 0.0061) and
+  prints the same encoder fingerprint `788e0728e71f`.
+- ✅ **Demo**: `python colorize.py --image <any s1 png>` — one entry point for both models.
+
+Remaining:
+
+- **Report / slides**: results tables (§7), loss curves (`model1_run/loss_curve.png`,
+  `model2_run/loss_curve.png`), sample predictions, and the demo figure from `colorize.py`.
+- **Optional ablation**: `Train_model2.py --no_denoise` (raw SAR luminance, no DnCNN)
+  for a one-row comparison in the report.
