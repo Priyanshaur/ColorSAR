@@ -207,9 +207,9 @@ with gr.Blocks(title="ColorSAR", theme=gr.themes.Soft()) as demo:
         with gr.Tab("Colorize"):
             with gr.Row():
                 with gr.Column(scale=1):
-                    img = gr.Image(type="pil", label="Upload your own image (optional)",
-                                   info="Wait for the preview to appear before clicking Colorize — "
-                                        "otherwise the dataset sample below is used instead.")
+                    img = gr.Image(type="pil", label="Upload your own image (optional)")
+                    gr.Markdown("*Wait for the preview to appear before clicking Colorize — "
+                                "otherwise the dataset sample below is used instead.*")
                     sample = gr.Dropdown(choices=SAMPLES, value=SAMPLES[0][1],
                                          label="...or pick a dataset sample")
                     mode_choice = gr.Radio(["auto", "sar", "gray"], value="auto",
