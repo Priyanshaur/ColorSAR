@@ -234,6 +234,13 @@ python colorize.py --image v_2/agri/s1/ROIs1868_summer_s1_59_p10.png
 python colorize.py --image sample_input.jpeg --mode gray
 ```
 
+**Or run the whole demo in one command** (opens all result figures at the end):
+
+```powershell
+.\run_demo.ps1          # SAR + urban + photo + live evaluation (~3-4 min on CPU)
+.\run_demo.ps1 -Fast    # visuals only (~30 s)
+```
+
 It writes `<out>` (side-by-side figure: input / colorized / ground truth when the file
 belongs to `v_2/`) and `<out stem>_raw.png` (the colorized image at full resolution).
 

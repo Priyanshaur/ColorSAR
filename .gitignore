@@ -11,3 +11,5 @@ model2_run/metrics*.json
 visual_test_output.png
 _smoke/
 colorized_result.png
+
+demo_*.png
