@@ -15,3 +15,8 @@ scikit-image
 opencv-python
 matplotlib
 pillow
+
+# Interactive dashboard (python app.py -> http://127.0.0.1:7860)
+# Gradio 6 needs a recent fastapi/starlette; if `pip check` reports a
+# fastapi/starlette conflict, run:  pip install --upgrade fastapi gradio
+gradio>=6

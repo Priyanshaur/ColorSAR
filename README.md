@@ -142,6 +142,8 @@ ColorSAR/
 │   └── sample_predictions.png     # Validation sample comparisons
 ├── ColorSAR_Kaggle_Training.ipynb # Multi-GPU training notebook for Kaggle (2x T4)
 ├── colorize.py                    # Unified inference: SAR -> DnCNN -> Model 2, photo -> Model 1
+├── app.py                         # Interactive Gradio dashboard (Colorize / Results / About)
+├── run_demo.ps1                   # One-command scripted demo (opens all figures)
 ├── colorize_image.py              # Standalone inference & colorization CLI tool
 ├── evaluate.py                    # PSNR / SSIM evaluation for Model 1 or Model 2
 ├── Train_model2.py                # Stage B: colorization trained on SAR input
@@ -240,6 +242,18 @@ python colorize.py --image sample_input.jpeg --mode gray
 .\run_demo.ps1          # SAR + urban + photo + live evaluation (~3-4 min on CPU)
 .\run_demo.ps1 -Fast    # visuals only (~30 s)
 ```
+
+### Interactive dashboard (optional, for presentations)
+
+```powershell
+python app.py           # -> http://127.0.0.1:7860 (opens automatically)
+```
+
+Three tabs: **Colorize** (upload your own image or pick a dataset sample — auto-detects
+SAR vs photo, shows input / output / ground truth, ~3 s per image), **Results** (metrics
+vs upstream, per-terrain bars, training curves) and **About** (pipeline + the
+portability-fix story). It reuses the exact `colorize.py` code path, so the dashboard
+and the CLI always agree.
 
 It writes `<out>` (side-by-side figure: input / colorized / ground truth when the file
 belongs to `v_2/`) and `<out stem>_raw.png` (the colorized image at full resolution).
