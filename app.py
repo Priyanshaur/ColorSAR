@@ -84,6 +84,14 @@ def _gray3(arr):
     return a.astype(np.uint8)
 
 
+def _looks_grayscale(pil_img):
+    """Gradio normalizes uploads to RGB, so a 1-band SAR file arrives as R=G=B.
+    Detect that case from the pixel content instead of the band count."""
+    a = np.asarray(pil_img.convert("RGB"), dtype=np.int16)
+    return (np.abs(a[..., 0] - a[..., 1]).max() <= 2
+            and np.abs(a[..., 1] - a[..., 2]).max() <= 2)
+
+
 # ---------------------------------------------------------------- tab 1
 def run_colorize(img, mode_choice, denoise, sample):
     t0 = time.time()
@@ -102,8 +110,12 @@ def run_colorize(img, mode_choice, denoise, sample):
 
         mode = mode_choice
         if mode == "auto":
-            bands = len(Image.open(path).getbands())
-            mode = "sar" if bands == 1 else "gray"
+            if img is not None:
+                # uploads arrive RGB-normalized: judge by pixel content instead
+                mode = "sar" if _looks_grayscale(img) else "gray"
+            else:
+                bands = len(Image.open(path).getbands())
+                mode = "sar" if bands == 1 else "gray"
 
         dncnn = DNCNN if (mode == "sar" and denoise) else None
         if mode == "sar" and not denoise:
@@ -118,10 +130,13 @@ def run_colorize(img, mode_choice, denoise, sample):
                    f"ColorSAR {'Model 2' if mode == 'sar' else 'Model 1'} output")]
         if gt_path:
             panels.append((np.array(Image.open(gt_path).convert("RGB")), "ground truth"))
+            panels_note = ""
+        else:
+            panels_note = " — no ground truth (only dataset samples have one; your upload's true colors are unknown)"
 
         info = (f"source: {src}  |  mode: **{mode}**  |  model: "
                 f"{'2 (SAR -> DnCNN -> L -> colorizer)' if mode == 'sar' else '1 (L -> colorizer)'}"
-                f"{note}\ncheckpoint: `{M2_CKPT if mode == 'sar' else M1_CKPT}`  |  "
+                f"{note}{panels_note}\ncheckpoint: `{M2_CKPT if mode == 'sar' else M1_CKPT}`  |  "
                 f"fingerprint: `{FINGERPRINT}`  |  device: {DEVICE}  |  "
                 f"{time.time() - t0:.1f}s")
         return panels, info
@@ -192,17 +207,20 @@ with gr.Blocks(title="ColorSAR", theme=gr.themes.Soft()) as demo:
         with gr.Tab("Colorize"):
             with gr.Row():
                 with gr.Column(scale=1):
-                    img = gr.Image(type="pil", label="Upload your own image (optional)")
+                    img = gr.Image(type="pil", label="Upload your own image (optional)",
+                                   info="Wait for the preview to appear before clicking Colorize — "
+                                        "otherwise the dataset sample below is used instead.")
                     sample = gr.Dropdown(choices=SAMPLES, value=SAMPLES[0][1],
                                          label="...or pick a dataset sample")
                     mode_choice = gr.Radio(["auto", "sar", "gray"], value="auto",
                                            label="Input type",
-                                           info="auto: 1-band -> SAR (Model 2), 3-band -> photo (Model 1)")
+                                           info="auto: grayscale-looking -> SAR (Model 2), color -> photo (Model 1). "
+                                                "Set 'sar' manually if a grayscale photo is misdetected.")
                     denoise = gr.Checkbox(value=True,
                                           label="Apply DnCNN denoising before colorizing (SAR only)")
                     btn = gr.Button("Colorize", variant="primary")
                 with gr.Column(scale=2):
-                    gallery = gr.Gallery(label="input | ColorSAR output | ground truth",
+                    gallery = gr.Gallery(label="input | ColorSAR output  (ground truth only for dataset samples)",
                                          columns=3, height=420, object_fit="contain")
                     info = gr.Markdown()
             btn.click(run_colorize, [img, mode_choice, denoise, sample], [gallery, info])
