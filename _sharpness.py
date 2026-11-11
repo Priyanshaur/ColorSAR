@@ -7,17 +7,15 @@ with numbers instead of vibes. Also prototypes an unsharp-mask boost.
 
     python _sharpness.py
 """
-import os
-
 import cv2
 import numpy as np
 import torch
 from PIL import Image
 
-from colorize import colorize
-from color_utils import load_decoder, unsharp
-from dncnn import load_dncnn
-from model_architecture import EnsembleEncoder
+import os
+
+from colorize import CHECKPOINTS, colorize, load_models
+from color_utils import find_pairs, unsharp
 
 SIZE = 256  # normalize every image to this before measuring (fair comparison)
 
@@ -32,26 +30,21 @@ def lapvar(a):
     return float(cv2.Laplacian(a, cv2.CV_64F).var())
 
 
-def pair_of(s1_path):
-    d, f = os.path.split(s1_path)
-    return os.path.join(os.path.dirname(d), "s2", f.replace("_s1_", "_s2_"))
-
-
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-enc = EnsembleEncoder(pretrained=True).to(device).eval()
-for p in enc.parameters():
-    p.requires_grad = False
-dec = load_decoder("model2_run/model_2.pth", device)
-dncnn = load_dncnn("model2_run/dncnn.pth", device)
+enc, dec, meta, dncnn = load_models("sar", device, checkpoint=CHECKPOINTS["sar2"])  # Model 2
+m3 = (load_models("sar", device, checkpoint=CHECKPOINTS["sar3"])
+      if os.path.exists(CHECKPOINTS["sar3"]) else None)
+first_pair = {}
+for sar, opt, terrain in find_pairs("v_2"):
+    first_pair.setdefault(terrain, (sar, opt))
 
 results = {}
 for terrain in ("agri", "urban"):
-    s1 = sorted(os.listdir(os.path.join("v_2", terrain, "s1")))[0]
-    path = os.path.join("v_2", terrain, "s1", s1)
-    gt_path = pair_of(path)
+    path, gt_path = first_pair[terrain]
 
-    pred_dn, gray_dn, _ = colorize(path, "sar", enc, dec, dncnn, device)      # default
-    pred_ns, _, _ = colorize(path, "sar", enc, dec, None, device)             # --no_denoise
+    pred_dn, gray_dn, _ = colorize(path, "sar", enc, dec, meta, dncnn, device)   # default
+    pred_ns, _, _ = colorize(path, "sar", enc, dec, meta, None, device)          # --no_denoise
+    pred_m3 = colorize(path, "sar", *m3[:3], None, device)[0] if m3 else None
     raw_sar = np.array(Image.open(path).convert("L"))
     gt = np.array(Image.open(gt_path).convert("RGB"))
 
@@ -61,16 +54,18 @@ for terrain in ("agri", "urban"):
         "output, no denoise": lapvar(pred_ns),
         "output (default)": lapvar(pred_dn),
         "output + unsharp": lapvar(unsharp(pred_dn)),
+        **({"Model 3 output": lapvar(pred_m3)} if m3 else {}),
         "ground truth": lapvar(gt),
     }
 
     if terrain == "agri":
-        panels = [pred_dn, pred_ns, unsharp(pred_dn), gt]
-        titles = ["default (DnCNN)", "no denoise", "+ unsharp mask", "ground truth"]
+        panels = [pred_dn, pred_ns, unsharp(pred_dn)] + ([pred_m3] if m3 else []) + [gt]
+        titles = (["Model 2 (DnCNN)", "Model 2, no denoise", "Model 2 + unsharp mask"]
+                  + (["Model 3"] if m3 else []) + ["ground truth"])
         import matplotlib
         matplotlib.use("Agg")
         from matplotlib import pyplot as plt
-        fig, axes = plt.subplots(1, 4, figsize=(18, 4.6))
+        fig, axes = plt.subplots(1, len(panels), figsize=(4.5 * len(panels), 4.6))
         for ax, im, t in zip(axes, panels, titles):
             ax.imshow(im)
             ax.set_title(f"{t}\nsharpness {lapvar(im):.0f}")

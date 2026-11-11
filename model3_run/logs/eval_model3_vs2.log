@@ -1,0 +1,26 @@
+Device: cuda
+Model 3  |  checkpoint: model3_run/model_3.pth
+Checkpoint format 2  |  encoder fingerprint 852fdb1ead96  |  input_norm imagenet
+Input: SAR (s1) tile; L and ab predicted
+Evaluating on 633 pairs: held-out test set (1630 pairs unseen by model3_run/split.json), intersected with pairs held out by model2_run/split.json -> 633
+
+========================================================================
+Model 3  -  633 images  -  held-out test set (1630 pairs unseen by model3_run/split.json), intersected with pairs held out by model2_run/split.json -> 633
+========================================================================
+                                           PSNR dB     SSIM   ab RMSE
+  model (predicted color)                  16.6419   0.2816      7.61
+  no-color baseline (a=b=0)                16.0053   0.2728     10.53
+  mean-color baseline (train avg)          16.0773   0.2729     10.21
+  oracle (true ab, same L)                 16.7987   0.2904      0.00
+  brightness error (L RMSE vs optical L, Lab units): 15.69
+  colorizer vs no color  : +0.64 dB PSNR, +0.0088 SSIM, ab error 10.53 -> 7.61
+  colorizer vs mean color: +0.56 dB PSNR, +0.0087 SSIM, ab error 10.21 -> 7.61
+  upstream ColorSAR (different data/split, context only): PSNR 14.4466  SSIM 0.2314
+
+  terrain          n     PSNR  no-color  mean-col    SSIM  ab RMSE  no-color  mean-col
+  agri           187   15.519    15.384    15.377  0.3251     8.52      9.00      8.94
+  barrenland     147   16.759    16.600    16.589  0.2554     4.99      5.81      7.24
+  grassland      154   18.970    16.722    17.064  0.3469     9.65     19.43     16.75
+  urban          145   15.499    15.442    15.414  0.1826     6.93      7.81      7.90
+
+Saved metrics to model3_run/metrics_vs_model2.json

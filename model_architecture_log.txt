@@ -1,7 +1,0 @@
-Device: cpu
-Building EnsembleEncoder (random init, pretrained=False for a fast structural test)...
-Total parameters: 45,597,958
-Input shape:  torch.Size([1, 3, 224, 224])
-Output shape: torch.Size([1, 2, 224, 224])  (expected [1, 2, 224, 224] -> predicted a,b channels)
-
-MODEL ARCHITECTURE VERIFIED: forward pass runs correctly, output shape matches spec.

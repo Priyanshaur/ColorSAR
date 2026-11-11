@@ -1,0 +1,26 @@
+Device: cuda
+Model 1  |  checkpoint: model1b_run/model_1.pth
+Checkpoint format 2  |  encoder fingerprint 4c0f97e03665  |  input_norm imagenet
+Input: optical (s2) L
+Evaluating on 1630 pairs: held-out test set (1630 pairs unseen by model1b_run/split.json)
+
+========================================================================
+Model 1  -  1630 images  -  held-out test set (1630 pairs unseen by model1b_run/split.json)
+========================================================================
+                                           PSNR dB     SSIM   ab RMSE
+  model (predicted color)                  30.0216   0.9350      6.15
+  no-color baseline (a=b=0)                26.1751   0.9190     10.37
+  mean-color baseline (train avg)          26.1932   0.9153     10.02
+  oracle (true ab, same L) [round trip]   128.5140   1.0000      0.00
+  brightness error (L RMSE vs optical L, Lab units): 0.00
+  colorizer vs no color  : +3.85 dB PSNR, +0.0160 SSIM, ab error 10.37 -> 6.15
+  colorizer vs mean color: +3.83 dB PSNR, +0.0197 SSIM, ab error 10.02 -> 6.15
+  upstream ColorSAR (different data/split, context only): PSNR 29.923  SSIM 0.94
+
+  terrain          n     PSNR  no-color  mean-col    SSIM  ab RMSE  no-color  mean-col
+  agri           436   29.272    26.259    26.338  0.9335     6.66      9.02      8.98
+  barrenland     376   33.026    29.888    28.784  0.9749     4.03      5.73      7.13
+  grassland      406   28.155    20.831    21.663  0.8766     7.59     18.94     16.21
+  urban          412   29.912    27.964    28.140  0.9577     6.12      7.61      7.66
+
+Saved metrics to model1b_run/metrics.json

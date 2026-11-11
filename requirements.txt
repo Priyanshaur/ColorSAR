@@ -1,22 +1,22 @@
-# ColorSAR dependencies
+# ColorSAR dependencies - pinned to the versions the project is verified with.
+# (An unpinned torchvision once silently changed ResNet50's DEFAULT weights and broke
+#  every checkpoint; pinning keeps training, evaluation and inference identical.)
 #
 # Install PyTorch FIRST so you get the build that matches your machine:
 #   NVIDIA GPU (CUDA 12.6 - the laptop this project trains on):
-#       pip install torch torchvision --index-url https://download.pytorch.org/whl/cu126
+#       pip install torch==2.9.0 torchvision==0.24.0 --index-url https://download.pytorch.org/whl/cu126
 #   CPU only:
-#       pip install torch torchvision --index-url https://download.pytorch.org/whl/cpu
-# If you skip that step, `pip install -r requirements.txt` pulls the default
-# PyPI build (works too, but it is a much larger download).
-torch
-torchvision
+#       pip install torch==2.9.0 torchvision==0.24.0 --index-url https://download.pytorch.org/whl/cpu
+# then:  pip install -r requirements.txt
+torch==2.9.0
+torchvision==0.24.0
 
-numpy
-scikit-image
-opencv-python
-matplotlib
-pillow
+numpy==2.2.1
+scikit-image==0.26.0
+opencv-python==5.0.0.93
+matplotlib==3.10.1
+pillow==11.1.0
 
 # Interactive dashboard (python app.py -> http://127.0.0.1:7860)
-# Gradio 6 needs a recent fastapi/starlette; if `pip check` reports a
-# fastapi/starlette conflict, run:  pip install --upgrade fastapi gradio
-gradio>=6
+gradio==6.31.0
+fastapi==0.162.2

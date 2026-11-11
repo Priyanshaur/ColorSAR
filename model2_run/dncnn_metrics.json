@@ -1,0 +1,16 @@
+{
+  "dncnn": {
+    "psnr": 15.952997245973378,
+    "ssim": 0.23662370355523502
+  },
+  "raw_sar": {
+    "psnr": 9.55377977564815,
+    "ssim": 0.02349992542905698
+  },
+  "n_images": 6000,
+  "eval_set": "held-out test set (6000 pairs unseen by model2_run/dncnn_split.json)",
+  "upstream_reported": {
+    "psnr": 16.24,
+    "ssim": 0.2641
+  }
+}

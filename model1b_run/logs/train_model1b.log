@@ -1,0 +1,29 @@
+Device: cuda  |  GPUs: 2
+Config: {'n_images': 0, 'n_val': 0, 'epochs': 20, 'batch_size': 64, 'lr': 0.0005, 'scheduler': 'cosine', 'loss': 'bins', 'bin_grid': 10.0, 'T': 0.38, 'L_weight': 1.0, 'num_workers': 4, 'seed': 42, 'out': 'model1b_run', 'predict_L': False, 'train_adapters': True, 'imagenet_norm': True, 'augment': True}
+16000 pairs  ->  train 12786  val 1584  (test 1630 held out, never touched here)
+Color bins: 152 occupied 10-unit cells (weights 0.19..5.91)
+Encoder adapter fingerprint at init: 1da5df7e60c8  (adapters will be trained)
+Trainable parameters: 15,222,616
+Epoch 1/20  train=2.5374  val=2.3122  val ab RMSE=8.35  lr=5.0e-04  (2.9 min)  <- best, saved
+Epoch 2/20  train=2.2722  val=2.2439  val ab RMSE=8.58  lr=5.0e-04  (5.8 min)
+Epoch 3/20  train=2.2002  val=2.1936  val ab RMSE=8.22  lr=4.9e-04  (8.7 min)  <- best, saved
+Epoch 4/20  train=2.1599  val=2.1373  val ab RMSE=7.78  lr=4.7e-04  (11.6 min)  <- best, saved
+Epoch 5/20  train=2.1219  val=2.1262  val ab RMSE=7.70  lr=4.5e-04  (14.5 min)  <- best, saved
+Epoch 6/20  train=2.1070  val=2.1047  val ab RMSE=7.33  lr=4.3e-04  (17.4 min)  <- best, saved
+Epoch 7/20  train=2.0827  val=2.0981  val ab RMSE=7.41  lr=4.0e-04  (20.3 min)
+Epoch 8/20  train=2.0542  val=2.0852  val ab RMSE=7.89  lr=3.7e-04  (23.2 min)
+Epoch 9/20  train=2.0437  val=2.0608  val ab RMSE=7.47  lr=3.3e-04  (26.1 min)
+Epoch 10/20  train=2.0254  val=2.0453  val ab RMSE=7.32  lr=2.9e-04  (29.0 min)  <- best, saved
+Epoch 11/20  train=2.0133  val=2.0334  val ab RMSE=7.08  lr=2.6e-04  (31.9 min)  <- best, saved
+Epoch 12/20  train=1.9963  val=2.0224  val ab RMSE=7.13  lr=2.2e-04  (34.9 min)
+Epoch 13/20  train=1.9888  val=2.0210  val ab RMSE=7.15  lr=1.8e-04  (37.8 min)
+Epoch 14/20  train=1.9735  val=1.9982  val ab RMSE=6.83  lr=1.4e-04  (40.7 min)  <- best, saved
+Epoch 15/20  train=1.9634  val=1.9998  val ab RMSE=7.09  lr=1.1e-04  (43.7 min)
+Epoch 16/20  train=1.9546  val=1.9873  val ab RMSE=6.82  lr=8.2e-05  (46.6 min)  <- best, saved
+Epoch 17/20  train=1.9474  val=1.9844  val ab RMSE=6.77  lr=5.7e-05  (49.5 min)  <- best, saved
+Epoch 18/20  train=1.9418  val=1.9787  val ab RMSE=6.79  lr=3.7e-05  (52.3 min)
+Epoch 19/20  train=1.9383  val=1.9782  val ab RMSE=6.77  lr=2.2e-05  (55.2 min)  <- best, saved
+Epoch 20/20  train=1.9330  val=1.9759  val ab RMSE=6.74  lr=1.3e-05  (58.2 min)  <- best, saved
+
+Done. Best epoch 20 (val score 6.739). Results in ./model1b_run/
+Metrics next:  python evaluate.py --model 1 --checkpoint model1b_run/model_1.pth
