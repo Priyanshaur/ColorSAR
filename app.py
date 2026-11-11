@@ -262,8 +262,6 @@ def _results_markdown():
 # ---------------------------------------------------------------- app
 with gr.Blocks(title="ColorSAR") as demo:
     gr.Markdown("# ColorSAR — colorization from SAR and grayscale imagery")
-    gr.Markdown("Reimplementation of [ColorSAR](https://github.com/nishant9083/ColorSAR) "
-                "(ensemble ResNet50 + DenseNet121 encoder, U-Net decoder, DnCNN front-end).")
 
     with gr.Tabs():
         with gr.Tab("Colorize"):
