@@ -1,9 +1,7 @@
 # ColorSAR — colorizing SAR and grayscale satellite imagery
 
 Deep-learning colorization of Sentinel-1 SAR and grayscale Sentinel-2 imagery in the CIE
-$L^*a^*b^*$ color space. Starts as a reimplementation of
-[ColorSAR](https://github.com/nishant9083/ColorSAR) (Models 1 and 2) and adds two improved
-models (1b and 3) that fix the original's main weaknesses.
+$L^*a^*b^*$ color space.
 
 ```
           input (3 channels)
