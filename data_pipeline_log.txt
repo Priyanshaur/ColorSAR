@@ -1,8 +1,0 @@
-Testing pipeline on: /home/claude/ColorSAR/ColorSAR-main/images/model_results/original_model/1.jpeg
-L channel shape:  (1, 224, 224)   range: [-1.000, 1.000]
-ab channels shape: (2, 224, 224)   range: [-0.087, 0.124]
-Reconstructed RGB shape: (224, 224, 3), range: [0.000, 1.000]
-Patches extracted from 500x500 image: 4 (expected 4)
-Each patch shape: (3, 224, 224)
-
-ALL PIPELINE STEPS RAN SUCCESSFULLY.

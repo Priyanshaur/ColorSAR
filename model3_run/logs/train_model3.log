@@ -1,0 +1,53 @@
+Device: cuda  |  GPUs: 2
+Config: {'n_images': 0, 'n_val': 0, 'epochs': 30, 'batch_size': 64, 'lr': 0.0005, 'scheduler': 'cosine', 'loss': 'bins', 'bin_grid': 10.0, 'T': 0.38, 'L_weight': 1.0, 'num_workers': 4, 'seed': 42, 'out': 'model3_run', 'predict_L': True, 'train_adapters': True, 'imagenet_norm': True, 'augment': True}
+16000 pairs  ->  train 12786  val 1584  (test 1630 held out, never touched here)
+Color bins: 152 occupied 10-unit cells (weights 0.19..5.91)
+Downloading: "https://download.pytorch.org/models/resnet50-11ad3fa6.pth" to /root/.cache/torch/hub/checkpoints/resnet50-11ad3fa6.pth
+
+  0%|          | 0.00/97.8M [00:00<?, ?B/s]
+  6%|▋         | 6.25M/97.8M [00:00<00:01, 65.3MB/s]
+ 24%|██▍       | 23.2M/97.8M [00:00<00:00, 131MB/s] 
+ 42%|████▏     | 41.0M/97.8M [00:00<00:00, 156MB/s]
+ 60%|█████▉    | 58.5M/97.8M [00:00<00:00, 167MB/s]
+ 78%|███████▊  | 76.0M/97.8M [00:00<00:00, 173MB/s]
+100%|██████████| 97.8M/97.8M [00:00<00:00, 172MB/s]
+Downloading: "https://download.pytorch.org/models/densenet121-a639ec97.pth" to /root/.cache/torch/hub/checkpoints/densenet121-a639ec97.pth
+
+  0%|          | 0.00/30.8M [00:00<?, ?B/s]
+ 32%|███▏      | 9.88M/30.8M [00:00<00:00, 103MB/s]
+100%|██████████| 30.8M/30.8M [00:00<00:00, 175MB/s]
+Encoder adapter fingerprint at init: 1da5df7e60c8  (adapters will be trained)
+Trainable parameters: 15,223,193
+Epoch 1/30  train=3.0936  val=2.9151  val ab RMSE=10.53  L RMSE=18.53  lr=5.0e-04  (7.8 min)  <- best, saved
+Epoch 2/30  train=2.8379  val=2.8377  val ab RMSE=9.57  L RMSE=18.34  lr=5.0e-04  (10.8 min)  <- best, saved
+Epoch 3/30  train=2.7813  val=2.7643  val ab RMSE=9.80  L RMSE=17.95  lr=4.9e-04  (13.9 min)  <- best, saved
+Epoch 4/30  train=2.7450  val=2.7444  val ab RMSE=9.37  L RMSE=18.12  lr=4.9e-04  (16.9 min)  <- best, saved
+Epoch 5/30  train=2.7166  val=2.7083  val ab RMSE=9.01  L RMSE=17.48  lr=4.8e-04  (20.0 min)  <- best, saved
+Epoch 6/30  train=2.6957  val=2.6935  val ab RMSE=8.77  L RMSE=17.70  lr=4.7e-04  (23.0 min)  <- best, saved
+Epoch 7/30  train=2.6731  val=2.6719  val ab RMSE=9.42  L RMSE=17.28  lr=4.5e-04  (26.1 min)
+Epoch 8/30  train=2.6606  val=2.6642  val ab RMSE=9.21  L RMSE=17.02  lr=4.4e-04  (29.2 min)  <- best, saved
+Epoch 9/30  train=2.6402  val=2.6423  val ab RMSE=8.96  L RMSE=16.88  lr=4.2e-04  (32.3 min)  <- best, saved
+Epoch 10/30  train=2.6308  val=2.6414  val ab RMSE=8.95  L RMSE=17.28  lr=4.0e-04  (35.3 min)
+Epoch 11/30  train=2.6163  val=2.6338  val ab RMSE=9.00  L RMSE=16.96  lr=3.8e-04  (38.4 min)
+Epoch 12/30  train=2.6029  val=2.6221  val ab RMSE=9.03  L RMSE=17.04  lr=3.5e-04  (41.5 min)
+Epoch 13/30  train=2.5894  val=2.6101  val ab RMSE=8.70  L RMSE=16.84  lr=3.3e-04  (44.6 min)  <- best, saved
+Epoch 14/30  train=2.5810  val=2.5943  val ab RMSE=8.78  L RMSE=16.76  lr=3.1e-04  (47.6 min)  <- best, saved
+Epoch 15/30  train=2.5668  val=2.5866  val ab RMSE=8.74  L RMSE=16.60  lr=2.8e-04  (50.7 min)  <- best, saved
+Epoch 16/30  train=2.5526  val=2.5991  val ab RMSE=9.07  L RMSE=16.95  lr=2.6e-04  (53.8 min)
+Epoch 17/30  train=2.5462  val=2.5790  val ab RMSE=8.48  L RMSE=16.83  lr=2.3e-04  (56.9 min)  <- best, saved
+Epoch 18/30  train=2.5361  val=2.5702  val ab RMSE=8.53  L RMSE=16.69  lr=2.0e-04  (60.0 min)  <- best, saved
+Epoch 19/30  train=2.5264  val=2.5639  val ab RMSE=8.68  L RMSE=16.53  lr=1.8e-04  (63.1 min)  <- best, saved
+Epoch 20/30  train=2.5180  val=2.5574  val ab RMSE=8.25  L RMSE=16.57  lr=1.6e-04  (66.1 min)  <- best, saved
+Epoch 21/30  train=2.5063  val=2.5482  val ab RMSE=8.31  L RMSE=16.36  lr=1.3e-04  (69.2 min)  <- best, saved
+Epoch 22/30  train=2.4987  val=2.5387  val ab RMSE=8.47  L RMSE=16.29  lr=1.1e-04  (72.3 min)
+Epoch 23/30  train=2.4897  val=2.5333  val ab RMSE=8.38  L RMSE=16.43  lr=9.1e-05  (75.3 min)
+Epoch 24/30  train=2.4844  val=2.5231  val ab RMSE=8.34  L RMSE=16.33  lr=7.3e-05  (78.4 min)
+Epoch 25/30  train=2.4767  val=2.5246  val ab RMSE=8.17  L RMSE=16.38  lr=5.7e-05  (81.5 min)  <- best, saved
+Epoch 26/30  train=2.4703  val=2.5169  val ab RMSE=8.28  L RMSE=16.25  lr=4.3e-05  (84.5 min)  <- best, saved
+Epoch 27/30  train=2.4689  val=2.5200  val ab RMSE=8.24  L RMSE=16.26  lr=3.1e-05  (87.6 min)  <- best, saved
+Epoch 28/30  train=2.4617  val=2.5123  val ab RMSE=8.23  L RMSE=16.20  lr=2.2e-05  (90.7 min)  <- best, saved
+Epoch 29/30  train=2.4595  val=2.5133  val ab RMSE=8.29  L RMSE=16.32  lr=1.5e-05  (93.7 min)
+Epoch 30/30  train=2.4582  val=2.5151  val ab RMSE=8.25  L RMSE=16.22  lr=1.1e-05  (97.1 min)
+
+Done. Best epoch 28 (val score 24.425). Results in ./model3_run/
+Metrics next:  python evaluate.py --model 3 --checkpoint model3_run/model_3.pth

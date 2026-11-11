@@ -1,0 +1,132 @@
+{
+  "model": {
+    "psnr": 28.91974403266229,
+    "ssim": 0.9314372915970651,
+    "ab_rmse": 7.1807449101007474
+  },
+  "checkpoint": "model1_run/model_1.pth",
+  "eval_set": "VALIDATION set (1600 pairs) - no unseen pairs exist for this checkpoint; val picked the best epoch, so this is slightly optimistic, intersected with pairs held out by model1b_run/split.json -> 171",
+  "split": "heldout",
+  "fingerprint": "788e0728e71f",
+  "denoised": false,
+  "no_color": {
+    "psnr": 26.636296418138688,
+    "ssim": 0.9221982074062727,
+    "ab_rmse": 10.062402442184805
+  },
+  "mean_color": {
+    "psnr": 26.586780755188624,
+    "ssim": 0.9193722333824426,
+    "ab_rmse": 9.769944731952155
+  },
+  "oracle": {
+    "psnr": 129.20574152779264,
+    "ssim": 0.9999999295898349,
+    "ab_rmse": 0.0
+  },
+  "L_rmse": 0.0,
+  "n": 171,
+  "per_terrain": {
+    "agri": {
+      "model": {
+        "psnr": 28.691249004426645,
+        "ssim": 0.9390963464975357,
+        "ab_rmse": 6.943283836046855
+      },
+      "no_color": {
+        "psnr": 27.270905032869152,
+        "ssim": 0.941573785410987,
+        "ab_rmse": 8.038477778434753
+      },
+      "mean_color": {
+        "psnr": 27.348508190487305,
+        "ssim": 0.9378678152958552,
+        "ab_rmse": 8.114543835322062
+      },
+      "oracle": {
+        "psnr": 130.14827230631502,
+        "ssim": 0.9999998692009184,
+        "ab_rmse": 0.0
+      },
+      "L_rmse": 0.0,
+      "n": 36
+    },
+    "barrenland": {
+      "model": {
+        "psnr": 32.352742625192384,
+        "ssim": 0.9720633003446791,
+        "ab_rmse": 4.426533529493544
+      },
+      "no_color": {
+        "psnr": 30.67521441533966,
+        "ssim": 0.9740264746877882,
+        "ab_rmse": 5.140537330839369
+      },
+      "mean_color": {
+        "psnr": 29.289445989821882,
+        "ssim": 0.9640069272783067,
+        "ab_rmse": 6.7240664376152885
+      },
+      "oracle": {
+        "psnr": 134.89228486037885,
+        "ssim": 0.999999901983473,
+        "ab_rmse": 0.0
+      },
+      "L_rmse": 0.0,
+      "n": 45
+    },
+    "grassland": {
+      "model": {
+        "psnr": 25.733611999298706,
+        "ssim": 0.8608169763587242,
+        "ab_rmse": 9.454152207041895
+      },
+      "no_color": {
+        "psnr": 20.244807471553955,
+        "ssim": 0.8181253241938214,
+        "ab_rmse": 19.59059176334115
+      },
+      "mean_color": {
+        "psnr": 21.1369724544347,
+        "ssim": 0.822441837122274,
+        "ab_rmse": 16.795058960138366
+      },
+      "oracle": {
+        "psnr": 120.9858912833941,
+        "ssim": 0.9999999598015187,
+        "ab_rmse": 0.0
+      },
+      "L_rmse": 0.0,
+      "n": 43
+    },
+    "urban": {
+      "model": {
+        "psnr": 28.72281981536998,
+        "ssim": 0.9512836146861949,
+        "ab_rmse": 7.919715059564469
+      },
+      "no_color": {
+        "psnr": 28.13069651811321,
+        "ssim": 0.9529501466040916,
+        "ab_rmse": 7.607787061244883
+      },
+      "mean_color": {
+        "psnr": 28.40166657866034,
+        "ssim": 0.951151060297134,
+        "ab_rmse": 7.526945661991201
+      },
+      "oracle": {
+        "psnr": 130.55952881536595,
+        "ssim": 0.9999999746363214,
+        "ab_rmse": 0.0
+      },
+      "L_rmse": 0.0,
+      "n": 47
+    }
+  },
+  "upstream_reference": {
+    "psnr": 29.923,
+    "ssim": 0.94,
+    "note": "different data selection/split"
+  }
+}

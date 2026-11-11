@@ -1,81 +1,59 @@
-# Model 1 Checkpoint & Evaluation Results
+# Model 1 checkpoint & results
 
-This folder contains the trained weights, loss history, and visual benchmark evaluations for **ColorSAR Model 1**.
+ColorSAR Model 1: luminance (L) of an optical Sentinel-2 tile -> its a/b color channels.
 
----
+## Files
 
-## 1. Checkpoint Details
+| file | what it is |
+|---|---|
+| `model_1.pth` | decoder weights (format 1: decoder-only state_dict, 31.3 MB). Needs encoder fingerprint `788e0728e71f` - `load_colorizer` checks this and refuses to load otherwise |
+| `split.json` | the exact train/val pairs this checkpoint used (reconstructed from the notebook's recipe by `python splits.py --legacy`) |
+| `history.json` | per-epoch train/val loss of the run that produced `model_1.pth` |
+| `metrics.json` | held-out evaluation written by `evaluate.py` (model vs no-color / mean-color baselines, a/b RMSE, per terrain) |
+| `loss_curve.png`, `sample_predictions.png` | regenerated from this checkpoint by `python make_figures.py --model 1` |
+| `colorized_sample_test.png` | `python colorize.py --image sample_input.jpeg` - an everyday photo, i.e. **out of domain** for a model trained on satellite tiles |
 
-- **File**: `model_1.pth`
-- **Size**: 31.3 MB (`31,296,058 bytes`)
-- **Trained Module**: U-Net Decoder (Ensemble Encoder with ResNet-50 + DenseNet-121 was frozen during training)
-- **Architecture**: 5-stage Transposed Convolution & Bilinear Upsampling Decoder with skip connections
-- **Input Channels**: Multi-scale fused features ($7\times7, 14\times14, 28\times28, 56\times56$)
-- **Output Channels**: 2 channels ($a^*, b^*$ chrominance in normalized range $[-1, 1]$)
+## Training run
 
----
+- Kaggle, 2x Tesla T4, `nn.DataParallel`, batch 64
+- all 16,000 pairs: 14,400 train / 1,600 val (random_split, seed 42) - **no test set was held out**, so
+  `evaluate.py` scores this checkpoint on its 1,600 validation pairs (which also chose the best epoch:
+  a slightly optimistic estimate). Retraining with `Train_model1.py` uses the canonical 80/10/10 split instead.
+- 20 epochs, Adam 5e-4, CosineAnnealingLR down to 1e-5, MSE on normalized a/b
+- frozen ImageNet ResNet-50 (IMAGENET1K_V2) + DenseNet-121 (IMAGENET1K_V1); adapters seeded (42) and frozen
 
-## 2. Training Run Details
+## Loss history (from `history.json`)
 
-- **Dataset**: `requiemonk/sentinel12-image-pairs-segregated-by-terrain` (Full ~16,000 paired satellite images across `agri`, `urban`, `barren`, `grassland`)
-- **Hardware**: 2x NVIDIA Tesla T4 GPUs (31.2 GB VRAM) on Kaggle
-- **Parallelization**: `torch.nn.DataParallel` (batch size 64 total, 32 per GPU)
-- **Epochs**: 20
-- **Loss Function**: Mean Squared Error (MSE)
-- **Optimizer**: Adam ($\text{lr} = 5 \times 10^{-4}$ with `CosineAnnealingLR` decay down to $1 \times 10^{-5}$)
+| epoch | train MSE | val MSE |
+|:---:|:---:|:---:|
+| 1 | 0.0335 | 0.0423 |
+| 2 | 0.0174 | 0.0174 |
+| 3 | 0.0129 | 0.0093 |
+| 4 | 0.0140 | 0.0229 |
+| 5 | 0.0147 | 0.0140 |
+| 6 | 0.0174 | 0.0098 |
+| 7 | 0.0124 | 0.0083 |
+| 8 | 0.0117 | 0.0130 |
+| 9 | 0.0091 | 0.0070 |
+| 10 | 0.0098 | 0.0138 |
+| 11 | 0.0094 | 0.0067 |
+| 12 | 0.0074 | 0.0064 |
+| 13 | 0.0073 | 0.0052 |
+| 14 | 0.0063 | 0.0057 |
+| 15 | 0.0061 | 0.0050 |
+| 16 | 0.0057 | 0.0054 |
+| 17 | 0.0057 | 0.0055 |
+| 18 | 0.0055 | 0.0044  **best - this checkpoint** |
+| 19 | 0.0053 | 0.0045 |
+| 20 | 0.0055 | 0.0045 |
 
----
+Validation loss is noisy in the first half (e.g. epochs 4, 8, 10) and settles once the learning rate decays.
 
-## 3. Loss History Summary
-
-| Epoch | Train Loss | Validation Loss |
-| :---: | :---: | :---: |
-| 1 | 0.0384 | 0.0129 |
-| 2 | 0.0134 | 0.0147 |
-| 3 | 0.0112 | 0.0110 |
-| 4 | 0.0093 | 0.0099 |
-| 5 | 0.0087 | 0.0079 |
-| 6 | 0.0089 | 0.0076 |
-| 7 | 0.0167 | 0.0171 |
-| 8 | 0.0108 | 0.0075 |
-| 9 | 0.0084 | 0.0064 |
-| 10 | 0.0076 | 0.0061 |
-| 11 | 0.0074 | 0.0081 |
-| 12 | 0.0063 | 0.0051 |
-| 13 | 0.0060 | 0.0052 |
-| 14 | 0.0058 | 0.0062 |
-| 15 | 0.0056 | 0.0102 |
-| 16 | 0.0056 | 0.0051 |
-| 17 | 0.0053 | **0.0043** *(Best Checkpoint Saved)* |
-| 18 | 0.0051 | 0.0046 |
-| 19 | 0.0050 | 0.0047 |
-| 20 | **0.0049** | 0.0043 |
-
----
-
-## 4. Visual Evaluations
-
-1. **`loss_curve.png`**: Displays the 20-epoch loss progression confirming steady convergence without divergence.
-2. **`sample_predictions.png`**: Multi-panel validation images showing ground truth optical images vs. ColorSAR predicted colors.
-3. **`colorized_sample_test.png`**: Inference test executed locally on the laptop's RTX 4050 GPU using `sample_input.jpeg`.
-
----
-
-## 5. How to Load in Python
+## Loading
 
 ```python
-import torch
-from model_architecture import EnsembleEncoder, Decoder, ColorizationModel
-
-device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-
-encoder = EnsembleEncoder(pretrained=True).to(device)
-encoder.eval()
-
-decoder = Decoder().to(device)
-decoder.load_state_dict(torch.load("model1_run/model_1.pth", map_location=device))
-decoder.eval()
-
-model = ColorizationModel(encoder, decoder).to(device)
-model.eval()
+from model_architecture import load_colorizer, predict_ab
+encoder, decoder, meta = load_colorizer("model1_run/model_1.pth", device)
+ab = predict_ab(encoder, decoder, L, meta["input_norm"])   # L: (N,1,224,224) in [-1,1]
 ```
+or simply `python colorize.py --image <file>`.
