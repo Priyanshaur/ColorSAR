@@ -30,7 +30,7 @@ from PIL import Image
 matplotlib.use("Agg")
 
 from colorize import colorize, find_ground_truth          # noqa: E402  (CLI, guarded)
-from color_utils import load_decoder                      # noqa: E402
+from color_utils import load_decoder, unsharp                      # noqa: E402
 from dncnn import load_dncnn                              # noqa: E402
 from model_architecture import EnsembleEncoder, encoder_fingerprint  # noqa: E402
 
@@ -93,7 +93,7 @@ def _looks_grayscale(pil_img):
 
 
 # ---------------------------------------------------------------- tab 1
-def run_colorize(img, mode_choice, denoise, sample):
+def run_colorize(img, mode_choice, denoise, sharpen, sample):
     t0 = time.time()
     tmp = None
     try:
@@ -122,8 +122,12 @@ def run_colorize(img, mode_choice, denoise, sample):
             note = " | DnCNN skipped (ablation: raw SAR luminance)"
         else:
             note = ""
+        if sharpen:
+            note += " | output sharpened (unsharp mask)"
 
         pred, gray_in, pil = colorize(path, mode, ENCODER, DECODERS[mode], dncnn, DEVICE)
+        if sharpen:
+            pred = unsharp(pred)
 
         panels = [(_gray3(gray_in), f"input ({'denoised SAR L' if dncnn else 'L'})"),
                   ((pred * 255).astype(np.uint8),
@@ -218,12 +222,14 @@ with gr.Blocks(title="ColorSAR", theme=gr.themes.Soft()) as demo:
                                                 "Set 'sar' manually if a grayscale photo is misdetected.")
                     denoise = gr.Checkbox(value=True,
                                           label="Apply DnCNN denoising before colorizing (SAR only)")
+                    sharpen = gr.Checkbox(value=True,
+                                          label="Sharpen output (unsharp mask, cosmetic)")
                     btn = gr.Button("Colorize", variant="primary")
                 with gr.Column(scale=2):
                     gallery = gr.Gallery(label="input | ColorSAR output  (ground truth only for dataset samples)",
                                          columns=3, height=420, object_fit="contain")
                     info = gr.Markdown()
-            btn.click(run_colorize, [img, mode_choice, denoise, sample], [gallery, info])
+            btn.click(run_colorize, [img, mode_choice, denoise, sharpen, sample], [gallery, info])
 
         with gr.Tab("Results"):
             gr.Markdown(_results_markdown())

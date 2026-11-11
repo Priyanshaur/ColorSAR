@@ -234,6 +234,7 @@ the matching model:
 ```powershell
 python colorize.py --image v_2/agri/s1/ROIs1868_summer_s1_59_p10.png
 python colorize.py --image sample_input.jpeg --mode gray
+python colorize.py --image v_2/agri/s1/ROIs1868_summer_s1_59_p10.png --sharp   # cosmetic sharpening
 ```
 
 **Or run the whole demo in one command** (opens all result figures at the end):
@@ -250,13 +251,27 @@ python app.py           # -> http://127.0.0.1:7860 (opens automatically)
 ```
 
 Three tabs: **Colorize** (upload your own image or pick a dataset sample — auto-detects
-SAR vs photo, shows input / output / ground truth, ~3 s per image), **Results** (metrics
+SAR vs photo, shows input / output / ground truth for dataset samples, DnCNN and
+sharpen toggles, ~3 s per image), **Results** (metrics
 vs upstream, per-terrain bars, training curves) and **About** (pipeline + the
 portability-fix story). It reuses the exact `colorize.py` code path, so the dashboard
 and the CLI always agree.
 
 It writes `<out>` (side-by-side figure: input / colorized / ground truth when the file
 belongs to `v_2/`) and `<out stem>_raw.png` (the colorized image at full resolution).
+
+### A note on sharpness
+
+Model 2's output can only be as sharp as the DnCNN-smoothed luminance it receives —
+the colorizer itself keeps ~85% of whatever detail its input has (`python _sharpness.py`
+reproduces the variance-of-Laplacian audit: default output 72 vs ground truth 398 on
+agri, 31 vs 2744 on urban). Two optional levers:
+
+- `--sharp` / the dashboard's **Sharpen output** checkbox — unsharp mask, purely
+  cosmetic (72 → 340 on agri), disclosed in the run's info line;
+- `--no_denoise` / unchecking DnCNN — raw SAR luminance, ~9x sharper, but the model
+  was trained on denoised inputs, so speckle sometimes breaks the color prediction
+  (ablation, not a default).
 
 ### Checkpoint portability (important)
 

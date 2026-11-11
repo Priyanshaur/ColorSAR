@@ -22,6 +22,7 @@ Usage:
     python colorize.py --image sample_input.jpeg --mode gray
     python colorize.py --image v_2/urban/s1/<file>.png --out demo.png
     python colorize.py --image v_2/agri/s1/<file>.png --no_denoise   # ablation
+    python colorize.py --image v_2/agri/s1/<file>.png --sharp         # cosmetic sharpening
 
 Outputs (both written next to each other):
     <out>                 side-by-side figure (input / colorized / ground truth)
@@ -37,7 +38,7 @@ import torch
 from PIL import Image
 from matplotlib import pyplot as plt
 
-from color_utils import find_pairs, gray_to_L, lab_to_rgb, load_decoder, rgb_to_L
+from color_utils import find_pairs, gray_to_L, lab_to_rgb, load_decoder, rgb_to_L, unsharp
 from dncnn import load_dncnn
 from model_architecture import EnsembleEncoder
 
@@ -97,6 +98,9 @@ if __name__ == "__main__":
     ap.add_argument("--dncnn", default="model2_run/dncnn.pth")
     ap.add_argument("--no_denoise", action="store_true",
                     help="sar mode: feed raw SAR luminance, skipping the DnCNN")
+    ap.add_argument("--sharp", action="store_true",
+                    help="apply an unsharp mask to the output (cosmetic sharpening, "
+                         "cannot invent detail the luminance does not have)")
     ap.add_argument("--root", default="v_2", help="dataset root used to find a ground truth pair")
     args = ap.parse_args()
 
@@ -133,6 +137,9 @@ if __name__ == "__main__":
     decoder = load_decoder(args.checkpoint, device)
 
     pred, gray_in, pil = colorize(args.image, mode, encoder, decoder, dncnn, device)
+    if args.sharp:
+        pred = unsharp(pred)
+        print("Unsharp mask applied (--sharp)")
 
     raw_path = os.path.splitext(args.out)[0] + "_raw.png"
     Image.fromarray((pred * 255).astype(np.uint8)).save(raw_path)

@@ -12,6 +12,7 @@ import os
 import warnings
 
 import numpy as np
+import cv2
 import torch
 import torch.nn as nn
 from skimage.color import rgb2lab, lab2rgb
@@ -127,3 +128,14 @@ def lab_to_rgb(L, ab):
         warnings.simplefilter("ignore")
         rgb = np.stack([lab2rgb(img) for img in lab])
     return np.clip(rgb, 0.0, 1.0)
+
+
+def unsharp(img, amount=1.2, radius=3.0):
+    """Cosmetic unsharp mask on a float RGB image in [0,1]: sharpen existing edges.
+
+    Boosts what detail is already present (the model output's structure comes from
+    the luminance, so this can only re-emphasize it - it cannot invent real detail).
+    """
+    x = img.astype(np.float32)
+    blur = cv2.GaussianBlur(x, (0, 0), radius)
+    return np.clip(x + amount * (x - blur), 0.0, 1.0)
