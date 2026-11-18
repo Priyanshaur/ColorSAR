@@ -1,0 +1,16 @@
+{
+  "id": "priyanshgaur/colorsar-diffusion",
+  "title": "colorsar-diffusion",
+  "code_file": "run_diffusion.py",
+  "language": "python",
+  "kernel_type": "script",
+  "is_private": true,
+  "enable_gpu": true,
+  "enable_internet": true,
+  "dataset_sources": [
+    "requiemonk/sentinel12-image-pairs-segregated-by-terrain",
+    "priyanshgaur/colorsar-code"
+  ],
+  "competition_sources": [],
+  "kernel_sources": []
+}

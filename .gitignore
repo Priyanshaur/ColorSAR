@@ -12,4 +12,5 @@ colorized_result*.png
 demo_*.png
 !model1b_run/*.pth
 !model3_run/*.pth
+!diffusion_small_run/*.pth
 kaggle_out/

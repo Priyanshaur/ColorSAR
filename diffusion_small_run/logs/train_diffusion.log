@@ -1,0 +1,72 @@
+pairs: train 11877 (17 scenes), val 64 (5 scenes), test 1660 (7 scenes)
+loaded into memory in 252 s
+[train] UNet 5.6M params | GPUs: 2 | budget 2.5 h
+step     200  loss 0.9260  lr 3.99e-05  128px x64  0.10 h
+step     400  loss 0.5199  lr 7.89e-05  128px x64  0.20 h
+step     600  loss 0.1540  lr 1.16e-04  128px x64  0.29 h
+step     800  loss 0.0776  lr 1.52e-04  128px x64  0.39 h
+step    1000  loss 0.0704  lr 1.84e-04  128px x64  0.48 h
+[val] step 1044  a/b RMSE 30.99  L RMSE 39.22  (64 val tiles, 25 DDIM steps)
+step    1200  loss 0.0672  lr 1.75e-04  128px x64  0.60 h
+step    1400  loss 0.0653  lr 1.68e-04  128px x64  0.70 h
+step    1600  loss 0.0652  lr 1.59e-04  128px x64  0.79 h
+step    1800  loss 0.0650  lr 1.50e-04  128px x64  0.89 h
+step    2000  loss 0.0676  lr 1.40e-04  128px x64  0.98 h
+[val] step 2109  a/b RMSE 18.23  L RMSE 31.27  (64 val tiles, 25 DDIM steps)
+step    2200  loss 0.0660  lr 1.26e-04  128px x64  1.10 h
+step    2400  loss 0.0632  lr 1.16e-04  128px x64  1.20 h
+step    2600  loss 0.0653  lr 1.05e-04  128px x64  1.29 h
+step    2800  loss 0.0626  lr 9.50e-05  128px x64  1.38 h
+step    3000  loss 0.0625  lr 8.47e-05  128px x64  1.48 h
+[val] step 3180  a/b RMSE 17.13  L RMSE 28.27  (64 val tiles, 25 DDIM steps)
+step    3200  loss 0.0615  lr 7.16e-05  128px x64  1.60 h
+step    3400  loss 0.0646  lr 6.23e-05  128px x64  1.69 h
+step    3600  loss 0.0622  lr 5.37e-05  128px x64  1.79 h
+step    3800  loss 0.0605  lr 4.57e-05  256px x24  1.88 h
+step    4000  loss 0.0592  lr 3.59e-05  256px x24  2.02 h
+[val] step 4106  a/b RMSE 19.03  L RMSE 30.54  (64 val tiles, 25 DDIM steps)
+step    4200  loss 0.0625  lr 2.69e-05  256px x24  2.19 h
+step    4400  loss 0.0640  lr 2.22e-05  256px x24  2.32 h
+step    4600  loss 0.0598  lr 2.01e-05  256px x24  2.46 h
+[train] done: 4660 steps in 2.50 h
+mean training color: a=-3.03 b=7.11
+/usr/local/lib/python3.13/dist-packages/torchvision/models/_utils.py:208: UserWarning: The parameter 'pretrained' is deprecated since 0.13 and may be removed in the future, please use 'weights' instead.
+  warnings.warn(
+/usr/local/lib/python3.13/dist-packages/torchvision/models/_utils.py:223: UserWarning: Arguments other than a weight enum or `None` for 'weights' are deprecated since 0.13 and may be removed in the future. The current behavior is equivalent to passing `weights=AlexNet_Weights.IMAGENET1K_V1`. You can also use `weights=AlexNet_Weights.DEFAULT` to get the most up-to-date weights.
+  warnings.warn(msg)
+Downloading: "https://download.pytorch.org/models/alexnet-owt-7be5be79.pth" to /root/.cache/torch/hub/checkpoints/alexnet-owt-7be5be79.pth
+
+  0%|          | 0.00/233M [00:00<?, ?B/s]
+  3%|▎         | 7.75M/233M [00:00<00:02, 81.2MB/s]
+ 11%|█         | 25.2M/233M [00:00<00:01, 141MB/s] 
+ 19%|█▉        | 44.9M/233M [00:00<00:01, 170MB/s]
+ 28%|██▊       | 65.6M/233M [00:00<00:00, 189MB/s]
+ 37%|███▋      | 85.6M/233M [00:00<00:00, 196MB/s]
+ 45%|████▍     | 105M/233M [00:00<00:00, 197MB/s] 
+ 54%|█████▎    | 125M/233M [00:00<00:00, 202MB/s]
+ 62%|██████▏   | 144M/233M [00:00<00:00, 203MB/s]
+ 71%|███████   | 165M/233M [00:00<00:00, 205MB/s]
+ 79%|███████▉  | 184M/233M [00:01<00:00, 194MB/s]
+ 87%|████████▋ | 203M/233M [00:01<00:00, 192MB/s]
+ 95%|█████████▍| 221M/233M [00:01<00:00, 190MB/s]
+100%|██████████| 233M/233M [00:01<00:00, 191MB/s]
+[eval] pass 1: 118 s for the first 32 tiles -> ~102 min for 1660
+[eval] pass 1 done in 98.3 min
+[eval] only time for K=1 samples per tile
+
+============================================================================================
+Conditional pixel diffusion - 1660 test tiles from held-out scenes, 256 px, 50 DDIM steps, K=1
+============================================================================================
+                            PSNR    SSIM  a/b RMSE   L RMSE  sharpness   LPIPS
+  sample                    9.97   0.051     20.09    31.68       8758   0.802
+  no_color                 10.30   0.055      9.85    31.68       9078   0.763
+  mean_color               10.47   0.055      9.13    31.68       9071   0.747
+  ground truth                                                    1091
+
+  terrain         n    PSNR  a/b RMSE  mean-col   L RMSE   sharp  GT sharp
+  agri          417    9.97     19.66      9.09    30.97    8649       562
+  barrenland    391   11.28     19.83     10.50    26.31    8654       580
+  grassland     449    9.33     21.35      9.76    34.91    8611       538
+  urban         403    9.43     19.39      7.14    34.02    9135      2749
+
+total 4.21 h -> /kaggle/working/results/diffusion_small_run/

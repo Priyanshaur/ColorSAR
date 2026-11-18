@@ -17,7 +17,7 @@ import shutil
 FILES = sorted(set(glob.glob("*.py")) - {"app.py", "_sharpness.py"}) + [
     "model1_run/model_1.pth", "model1_run/split.json",
     "model2_run/model_2.pth", "model2_run/dncnn.pth", "model2_run/split.json",
-    "model2_run/dncnn_split.json",
+    "model2_run/dncnn_split.json", "scene_split.json",
 ]
 
 if __name__ == "__main__":

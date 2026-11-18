@@ -1,0 +1,20 @@
+{
+  "rule": "whole Sentinel scenes held out; the same val/test scenes as the team benchmark (Aditya-Patil27/ColorSAR_AP, splits.scene_split), so results are comparable. Every scene not listed under val or test is a training scene.",
+  "val": [
+    "ROIs1970_fall_113",
+    "ROIs1970_fall_144",
+    "ROIs1970_fall_53",
+    "ROIs1970_fall_56",
+    "ROIs1970_fall_72",
+    "ROIs1970_fall_73"
+  ],
+  "test": [
+    "ROIs1970_fall_115",
+    "ROIs1970_fall_121",
+    "ROIs1970_fall_124",
+    "ROIs1970_fall_133",
+    "ROIs1970_fall_27",
+    "ROIs1970_fall_32",
+    "ROIs1970_fall_67"
+  ]
+}
